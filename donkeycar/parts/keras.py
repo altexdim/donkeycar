@@ -400,14 +400,17 @@ class KerasMemory(KerasLinear):
 
     def run(self, img_arr: np.ndarray, other_arr: List[float] = None) -> \
             Tuple[Union[float, np.ndarray], ...]:
+        # Only called at start to fill the previous values
         while len(self.mem_seq) < self.mem_length:
-            self.mem_seq.append(other_arr)
+            self.mem_seq.append([0, 0])
 
-        self.mem_seq = self.mem_seq[1:]
-        self.mem_seq.append(other_arr)
         np_mem_arr = np.array(self.mem_seq).reshape((2 * self.mem_length,))
         img_arr_norm = normalize_image(img_arr)
-        return super().inference(img_arr_norm, np_mem_arr)
+        angle_throttle = super().inference(img_arr_norm, np_mem_arr)
+        # fill new values into back of history list for next call
+        self.mem_seq = self.mem_seq[1:]
+        self.mem_seq.append(list(angle_throttle))
+        return angle_throttle
 
     def x_transform(self, records: Union[TubRecord, List[TubRecord]]) -> XY:
         """ Return x from record, here x = image, previous angle/throttle
