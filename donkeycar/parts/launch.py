@@ -20,8 +20,9 @@ class AiLaunch():
         self.enabled = True
         print('AiLauncher is enabled.')
 
-    def run(self, mode, ai_throttle):
+    def run(self, mode, ai_throttle, ai_angle):
         new_throttle = ai_throttle
+        new_angle = ai_angle
 
         if mode != self.prev_mode:
             self.prev_mode = mode
@@ -43,6 +44,8 @@ class AiLaunch():
         if self.active:
             print('AiLauncher is active!!!')
             new_throttle = self.launch_throttle
+            new_angle = 0.0
 
-        return new_throttle
+        #print('AiLauncher new_throttle=', new_throttle, ', new_angle=', new_angle)
+        return new_throttle, new_angle
 
