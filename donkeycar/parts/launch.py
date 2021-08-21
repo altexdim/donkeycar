@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 class AiLaunch():
     '''
@@ -18,7 +19,7 @@ class AiLaunch():
         
     def enable_ai_launch(self):
         self.enabled = True
-        print('AiLauncher is enabled.')
+        print('AiLauncher is enabled', datetime.now().time())
 
     def run(self, mode, ai_throttle, ai_angle):
         new_throttle = ai_throttle
@@ -28,21 +29,25 @@ class AiLaunch():
             self.prev_mode = mode
             if mode == "local" and self.trigger_on_switch:
                 self.enabled = True
+                print('AiLauncher is activated by mode and trigger', datetime.now().time())
 
         if mode == "local" and self.enabled:
             if not self.active:
                 self.active = True
                 self.timer_start = time.time()
+                print('AiLauncher is activated now', datetime.now().time())
             else:
                 duration = time.time() - self.timer_start
                 if duration > self.timer_duration:
                     self.active = False
                     self.enabled = False
+                    print('AiLauncher is deactivated by duration', datetime.now().time())
         else:
+            if self.active:
+              print('AiLauncher is deactivated by mode now', datetime.now().time())
             self.active = False
 
         if self.active:
-            print('AiLauncher is active!!!')
             new_throttle = self.launch_throttle
             new_angle = 0.0
 
