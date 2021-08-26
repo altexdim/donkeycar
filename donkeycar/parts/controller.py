@@ -1200,11 +1200,11 @@ class PS4JoystickController(JoystickController):
 
         self.button_down_trigger_map = {
             'share' : self.toggle_mode,
-            'circle' : self.toggle_manual_recording,
+            'L2' : self.toggle_manual_recording, # real L1
             'triangle' : self.erase_last_N_records,
             'cross' : self.emergency_stop,
-            'L1' : self.increase_max_throttle,
-            'R1' : self.decrease_max_throttle,
+            'L1' : self.increase_max_throttle, # real L2
+            'R1' : self.decrease_max_throttle, # real R2
             'options' : self.toggle_constant_throttle,
         }
 
