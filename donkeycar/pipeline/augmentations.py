@@ -115,6 +115,77 @@ class ImageAugmentation:
             logger.info(f'Creating augmentation {aug_type} {interval}')
             return iaa.GaussianBlur(sigma=interval)
 
+        elif aug_type == 'CUSTOM':
+            logger.info(f'Creating augmentation {aug_type}')
+
+            # return iaa.Cartoon()
+
+            seq = iaa.Sequential([
+                iaa.Crop(percent=(0, 0.1)),  # random crops
+
+                # Small gaussian blur with random sigma between 0 and 0.5.
+                # But we only blur about 50% of all images.
+                iaa.Sometimes(0.5, iaa.GaussianBlur(sigma=(0, 1.5))),
+
+                # Strengthen or weaken the contrast in each image.
+                iaa.LinearContrast((0.75, 1.5)),
+
+                # Add gaussian noise.
+                # For 50% of all images, we sample the noise once per pixel.
+                # For the other 50% of all images, we sample the noise per pixel AND
+                # channel. This can change the color (not only brightness) of the
+                # pixels.
+                iaa.AdditiveGaussianNoise(loc=0, scale=(0.0, 0.05 * 255), per_channel=0.5),
+
+                # Make some images brighter and some darker.
+                # In 20% of all cases, we sample the multiplier once per channel,
+                # which can end up changing the color of the images.
+                # iaa.Multiply((0.8, 1.2), per_channel=0.2),
+
+                # Apply affine transformations to each image.
+                # Scale/zoom them, translate/move them, rotate them and shear them.
+                iaa.Affine(
+                    # scale={"x": (0.1, 1.1), "y": (0.1, 1.1)},
+                    translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},
+                    rotate=(-5, 5),
+                    # shear=(-8, 8)
+                ),
+
+                # -------------------------------------------------
+                iaa.SomeOf(3, [
+                    # Add values to the pixels of images with possibly different values for neighbouring pixels.
+                    # iaa.AddElementwise((-40, 40), per_channel=0.5),
+                    iaa.AddElementwise((-40, 40), per_channel=False),
+                    # aug = iaa.AdditiveGaussianNoise(scale=0.2*255, per_channel=True)
+
+                    # aug = iaa.MultiplyElementwise((0.5, 1.5), per_channel=0.5)
+                    # iaa.Multiply((0.5, 1.5), per_channel=0.5),
+                    iaa.Multiply((0.5, 1.5), per_channel=False),
+
+                    # aug = iaa.Cutout(nb_iterations=(1, 5), size=0.1, squared=False)
+                    # aug = iaa.CoarseDropout(0.02, size_percent=0.15, per_channel=0.5)
+                    iaa.CoarseDropout((0.0, 0.05), size_percent=(0.02, 0.25)),
+
+                    # iaa.Invert(0.25, per_channel=0.5),
+
+                    # aug = iaa.JpegCompression(compression=(70, 99))
+
+                    # iaa.AddToHueAndSaturation((-50, 50), per_channel=True),
+                    iaa.AddToHueAndSaturation((-50, 50), per_channel=False),
+                    iaa.ChangeColorTemperature((1100, 10000)),
+
+                    # aug = iaa.GammaContrast((0.5, 2.0))
+                    # iaa.GammaContrast((0.5, 2.0), per_channel=True),
+                    iaa.GammaContrast((0.5, 2.0), per_channel=False),
+
+                    # iaa.Sharpen(alpha=(0.0, 1.0), lightness=(0.75, 2.0)),
+                    iaa.imgcorruptlike.GaussianNoise(severity=2),
+                    iaa.imgcorruptlike.Fog(severity=1)
+                ])
+            ], random_order=True)  # apply augmenters in random order
+
+            return seq
+
     # Parts interface
     def run(self, img_arr):
         aug_img_arr = self.augmentations.augment_image(img_arr)

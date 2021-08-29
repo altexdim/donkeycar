@@ -514,9 +514,10 @@ class KerasIMU(KerasPilot):
     y_keys = ['user/angle', 'user/throttle']
 
     def rt(rec):
-        rec['imu_array'] = np.array([ rec['imu/acl_x'], rec['imu/acl_y'],
-        rec['imu/acl_z'],
-            rec['imu/gyr_x'], rec['imu/gyr_y'], rec['imu/gyr_z'] ])
+        rec['imu_array'] = np.array([
+            rec['imu/acl_x'], rec['imu/acl_y'], rec['imu/acl_z'],
+            rec['imu/gyr_x'], rec['imu/gyr_y'], rec['imu/gyr_z']
+        ])
         return rec
 
     kl = KerasIMU()
@@ -529,12 +530,13 @@ class KerasIMU(KerasPilot):
 
     """
     # keys for imu data in TubRecord
-    imu_vec = [f'imu/{f}_{x}' for f in ('acl', 'gyr') for x in 'xyz']
+    # imu_vec = [f'imu/{f}_{x}' for f in ('acl', 'gyr') for x in 'xyz']
+    imu_vec = ['pos/speed']
 
     def __init__(self,
                  interpreter: Interpreter = KerasInterpreter(),
                  input_shape: Tuple[int, ...] = (120, 160, 3),
-                 num_outputs: int = 2, num_imu_inputs: int = 6):
+                 num_outputs: int = 2, num_imu_inputs: int = 1):
         self.num_outputs = num_outputs
         self.num_imu_inputs = num_imu_inputs
         super().__init__(interpreter, input_shape)
