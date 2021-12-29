@@ -19,21 +19,21 @@ class StuckRecovery:
 
         self.logger = logging.getLogger()
 
-    def run(self, mode, input_throttle, input_angle, vel_x, vel_y, vel_z):
+    def run(self, mode, input_throttle, input_angle, speed):
         if mode != "local":
             ''' the recovery mode should work only in auto pilot mode, otherwise skip stuck recovery completely '''
             return input_throttle, input_angle
 
         if self.state == 1:
             ''' detecting stop '''
-            is_stopped = self.detect_is_stop(vel_x, vel_y, vel_z)
+            is_stopped = self.detect_is_stop(speed)
             if is_stopped:
                 self.start_detecting_stuck()
             return input_throttle, input_angle
 
         if self.state == 2:
             ''' detecting stuck '''
-            is_stopped = self.detect_is_stop(vel_x, vel_y, vel_z)
+            is_stopped = self.detect_is_stop(speed)
             if is_stopped:
                 is_stuck = self.maintain_detecting_stuck()
                 if is_stuck:
@@ -63,9 +63,8 @@ class StuckRecovery:
         return self.recovery_throttle, -input_angle
 
     @staticmethod
-    def detect_is_stop(vel_x, vel_y, vel_z):
-        vel = math.sqrt(vel_x ** 2 + vel_y ** 2 + vel_z ** 2)
-        return vel < 0.1
+    def detect_is_stop(speed):
+        return speed < 0.1
 
     def maintain_recovery(self):
         duration = time.time() - self.timer_start
