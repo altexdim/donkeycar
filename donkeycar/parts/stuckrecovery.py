@@ -6,7 +6,7 @@ import logging
 
 class StuckRecovery:
 
-    def __init__(self, recovery_duration=3.0, recovery_throttle=-1.0, recovery_angle=0.0, stuck_duration=1.0):
+    def __init__(self, recovery_duration=2.2, recovery_throttle=-0.5, recovery_angle=0.0, stuck_duration=0.5):
         self.recovery_angle = recovery_angle
         self.stuck_duration = stuck_duration
         self.timer_duration = recovery_duration
@@ -38,7 +38,7 @@ class StuckRecovery:
                 is_stuck = self.maintain_detecting_stuck()
                 if is_stuck:
                     self.start_recovery()
-                    return self.recovery_throttle, self.recovery_angle
+                    return self.get_recovery_output(input_angle)
                 else:
                     return input_throttle, input_angle
             else:
@@ -49,10 +49,18 @@ class StuckRecovery:
             ''' recovering '''
             is_recovering = self.maintain_recovery()
             if is_recovering:
-                return self.recovery_throttle, self.recovery_angle
+                return self.get_recovery_output(input_angle)
             else:
                 self.finish_recovery()
                 return input_throttle, input_angle
+
+    def get_recovery_output(self, input_angle):
+        # Simple: constant steering
+        #   return self.recovery_throttle, self.recovery_angle
+        # A bit smarter: reverse input angle
+        #   return self.recovery_throttle, -input_angle
+        # More smarter: to detect correct orientation // TODO
+        return self.recovery_throttle, -input_angle
 
     @staticmethod
     def detect_is_stop(vel_x, vel_y, vel_z):
