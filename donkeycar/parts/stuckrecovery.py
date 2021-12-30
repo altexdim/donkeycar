@@ -19,17 +19,17 @@ class StuckRecovery:
 
         self.logger = logging.getLogger()
 
-    def run(self, mode, input_throttle, input_angle, speed):
+    def run(self, mode, input_throttle, input_angle, speed, input_brake):
         if mode != "local":
             ''' the recovery mode should work only in auto pilot mode, otherwise skip stuck recovery completely '''
-            return input_throttle, input_angle
+            return input_throttle, input_angle, input_brake
 
         if self.state == 1:
             ''' detecting stop '''
             is_stopped = self.detect_is_stop(speed)
             if is_stopped:
                 self.start_detecting_stuck()
-            return input_throttle, input_angle
+            return input_throttle, input_angle, input_brake
 
         if self.state == 2:
             ''' detecting stuck '''
@@ -40,10 +40,10 @@ class StuckRecovery:
                     self.start_recovery()
                     return self.get_recovery_output(input_angle)
                 else:
-                    return input_throttle, input_angle
+                    return input_throttle, input_angle, input_brake
             else:
                 self.finish_detecting_stuck()
-                return input_throttle, input_angle
+                return input_throttle, input_angle, input_brake
 
         if self.state == 3:
             ''' recovering '''
@@ -52,7 +52,7 @@ class StuckRecovery:
                 return self.get_recovery_output(input_angle)
             else:
                 self.finish_recovery()
-                return input_throttle, input_angle
+                return 0, 0, 1
 
     def get_recovery_output(self, input_angle):
         # Simple: constant steering
@@ -60,7 +60,7 @@ class StuckRecovery:
         # A bit smarter: reverse input angle
         #   return self.recovery_throttle, -input_angle
         # More smarter: to detect correct orientation // TODO
-        return self.recovery_throttle, -input_angle
+        return self.recovery_throttle, -input_angle, 0
 
     @staticmethod
     def detect_is_stop(speed):
