@@ -18,6 +18,7 @@ class ObstacleAvoidance:
         # self.logger.info(f'{datetime.now().time()}: L {lidar}')
 
         # TODO: find CLOSEST obstacle and proceed with it
+        # TODO: to find 2 closest points, to understand the wall, to compare velocity vector with the wall, to add PID controller to keep safe distance to wall
         min_k = -1
         min_v = 100
         for k, v in np.ndenumerate(lidar):
@@ -29,26 +30,23 @@ class ObstacleAvoidance:
             return input_throttle, input_angle, input_brake
 
 
-        if min_v > 0 and min_v < 2.5:
-            if min_v < 1.5:
+        far_distance = 4.5
+        close_distance = 1.5
+
+        if 0 < min_v < far_distance:
+            if min_v < close_distance:
                 alfa = 1
             else:
-                alfa = 2.5 - min_v
-
-            alfa = alfa * 5
-
-            if alfa >= 1:
-                alfa = 0.9
+                alfa = (far_distance - min_v) / (far_distance - close_distance)
 
             delta = 1 - alfa
-
             angle = min_k * 20
-
-            if angle > 180:
-                mult = 1
-            else:
+            if angle <= 180:
                 mult = -1
+            else:
+                mult = 1
 
+            # new_angle = input_angle + mult * alfa * 2
             new_angle = input_angle + mult * alfa
             if new_angle < -1:
                 new_angle = -1
@@ -56,8 +54,8 @@ class ObstacleAvoidance:
                 new_angle = 1
 
             new_throttle = input_throttle * delta
-            if new_throttle < -1:
-                new_throttle = -1
+            if new_throttle < 0.1:
+                new_throttle = 0.1
             if new_throttle > 1:
                 new_throttle = 1
 
@@ -66,6 +64,7 @@ class ObstacleAvoidance:
             # 1 - return input_throttle * delta, input_angle + mult * alfa, 1 * alfa * speed
             # 2 - return input_throttle * delta, input_angle + mult * alfa, 0
             # 3 - return input_throttle, input_angle + mult * alfa, 0
+            # 4 - new_throttle, new_angle, 0
             return new_throttle, new_angle, 0
 
         if mode != "local":
