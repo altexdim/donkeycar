@@ -30,6 +30,8 @@ class ObstacleAvoidance:
             return input_throttle, input_angle, input_brake
 
 
+        # far_distance = 2.5
+        # far_distance = 3.5
         far_distance = 4.5
         close_distance = 1.5
 
@@ -47,7 +49,8 @@ class ObstacleAvoidance:
                 mult = 1
 
             # new_angle = input_angle + mult * alfa * 2
-            new_angle = input_angle + mult * alfa
+            # new_angle = input_angle + mult * alfa
+            new_angle = input_angle + mult * alfa * 0.5
             if new_angle < -1:
                 new_angle = -1
             if new_angle > 1:
@@ -65,7 +68,7 @@ class ObstacleAvoidance:
             # 2 - return input_throttle * delta, input_angle + mult * alfa, 0
             # 3 - return input_throttle, input_angle + mult * alfa, 0
             # 4 - new_throttle, new_angle, 0
-            return new_throttle, new_angle, 0
+            return input_throttle, new_angle, 0
 
         if mode != "local":
             ''' the obstacle avoidance mode should work only in auto pilot mode, otherwise skip obstacle avoidance completely '''
