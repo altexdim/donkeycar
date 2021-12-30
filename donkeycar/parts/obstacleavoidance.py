@@ -12,12 +12,26 @@ class ObstacleAvoidance:
         self.logger.info(f'{datetime.now().time()}: ObstacleAvoidance initialised')
 
     def run(self, mode, input_throttle, input_angle, speed, lidar, input_brake):
+        # TODO - we need to detect obstacles at least at the 31m distance to react in time
+        # TODO - the problem with delay in sending commands in gym-donkeycar, it takes 5 frames to send a command from that part to the network
+
+        if lidar[0] != -1:
+            if input_throttle < 1:
+                return input_throttle, input_angle, input_brake
+
+            if speed < 1:
+                return input_throttle, input_angle, input_brake
+
+            self.logger.info(
+                f'{datetime.now().time()}: S {speed:.2f} T {input_throttle:.2f} A {input_angle:.2f} L {lidar}')
+
+            return -1, input_angle, 1
+
+        return input_throttle, input_angle, input_brake
+
         if speed < 0.1:
             speed = 0
 
-        # self.logger.info(f'{datetime.now().time()}: L {lidar}')
-
-        # TODO: find CLOSEST obstacle and proceed with it
         # TODO: to find 2 closest points, to understand the wall, to compare velocity vector with the wall, to add PID controller to keep safe distance to wall
         min_k = -1
         min_v = 100
