@@ -10,21 +10,30 @@ class ObstacleAvoidance:
     def __init__(self):
         self.logger = logging.getLogger()
         self.logger.info(f'{datetime.now().time()}: ObstacleAvoidance initialised')
+        self.trigger = False
+        self.start = datetime.now()
 
     def run(self, mode, input_throttle, input_angle, speed, lidar, input_brake):
         # TODO - we need to detect obstacles at least at the 31m distance to react in time
         # TODO - the problem with delay in sending commands in gym-donkeycar, it takes 5 frames to send a command from that part to the network
 
-        if lidar[0] != -1:
-            if input_throttle < 1:
-                return input_throttle, input_angle, input_brake
+        if speed >= 20 and input_throttle > 0:
+            self.trigger = True
+            self.start = datetime.now()
 
-            if speed < 1:
-                return input_throttle, input_angle, input_brake
+        if speed < 0.5 and self.trigger:
+            self.trigger = False
+            sec = datetime.now() - self.start
+            self.logger.info(
+                f'{datetime.now().time()}: it took {sec} to stop')
 
+        if self.trigger:
             self.logger.info(
                 f'{datetime.now().time()}: S {speed:.2f} T {input_throttle:.2f} A {input_angle:.2f} L {lidar}')
 
+            # return -1, 0, 1 # test 1 = 1.3
+            # return -1, 0, 0 # test 2 = 1.65
+            # return 0, 0, 1 # test 3 = 1.6
             return -1, input_angle, 1
 
         return input_throttle, input_angle, input_brake
