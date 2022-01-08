@@ -919,7 +919,7 @@ class JoystickController(object):
 
         #wait for joystick to be online
         while self.running and self.js is None and not self.init_js():
-            time.sleep(3)
+            time.sleep(0.1)
 
         while self.running:
             button, button_state, axis, axis_val = self.js.poll()
