@@ -79,6 +79,7 @@ class DonkeyGymEnv(object):
             outputs += self.info['vel'][0], self.info['vel'][1], self.info['vel'][2]
         if self.record_lidar:
             outputs.append(self.info['lidar'])
+        outputs.append(self.info['car'])
         if len(outputs) == 1:
             return self.frame
         else:
