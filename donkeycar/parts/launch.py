@@ -93,7 +93,8 @@ class AiCatapult():
             self.active = False
 
         if self.active:
-            new_throttle = self.launch_throttle
+            # TODO: move to config
+            # new_throttle = self.launch_throttle
             new_angle = 0.0
 
         return new_throttle, new_angle
