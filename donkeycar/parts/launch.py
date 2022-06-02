@@ -53,7 +53,8 @@ class AiCatapult():
     Comparing to AiLaunch this particular class also controls the angle.
     '''
 
-    def __init__(self, launch_duration=1.0, launch_throttle=1.0, keep_enabled=False):
+    def __init__(self, launch_duration=1.0, launch_throttle=1.0, keep_enabled=False, lock_angle=False):
+        self.lock_angle = lock_angle
         self.active = False
         self.enabled = False
         self.timer_start = None
@@ -93,8 +94,9 @@ class AiCatapult():
             self.active = False
 
         if self.active:
-            # TODO: move to config
-            # new_throttle = self.launch_throttle
-            new_angle = 0.0
+            if self.lock_angle:
+                new_angle = 0.0
+            else:
+                new_throttle = self.launch_throttle
 
         return new_throttle, new_angle
